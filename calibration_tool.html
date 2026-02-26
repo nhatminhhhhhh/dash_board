@@ -515,7 +515,10 @@ async function send(txt) {
   log(txt,'tx');
 }
 async function doGet()    { await send('GET'); }
-async function doUpdate() { await send(cur[0]+','+cur[1]+','+cur[2]); }
+async function doUpdate() { 
+  const cmd = cur[0]+','+cur[1]+','+cur[2];
+  await send(cmd); 
+}
 
 // ── Slider & step ──
 function onSlide(i) { applyVal(i, +document.getElementById('sl'+i).value); }
