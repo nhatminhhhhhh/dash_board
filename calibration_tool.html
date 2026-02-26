@@ -478,24 +478,24 @@ async function readLoop() {
 }
 
 // ── Parse MCU response ──
-// MCU gửi về: "GET:v1,v2,v3"  sau lệnh GET
-// MCU gửi về: "OK"             sau lệnh UPDATE
+// MCU sends: "v1,v2,v3" after GET
+// MCU sends: "OK" after UPDATE
 function handleRx(line) {
-  if(line.startsWith('GET:')) {
-    const parts = line.slice(4).split(',').map(s=>parseInt(s.trim()));
-    if(parts.length>=3 && parts.every(n=>!isNaN(n))) {
-      saved=[...parts]; cur=[...parts];
-      parts.forEach((v,i)=>applyVal(i,v,false));
-      log('Nhận: offset1='+parts[0]+', offset2='+parts[1]+', offset3='+parts[2],'info');
-      // Flash effect
-      [0,1,2].forEach(i=>{
-        const el=document.getElementById('vn'+i);
-        el.classList.remove('fresh');
-        void el.offsetWidth;
-        el.classList.add('fresh');
-        setTimeout(()=>el.classList.remove('fresh'),600);
-      });
-    }
+  // Try parsing as comma-separated values
+  const parts = line.split(',').map(s=>parseInt(s.trim()));
+  if(parts.length>=3 && parts.every(n=>!isNaN(n))) {
+    saved=[...parts]; cur=[...parts];
+    parts.forEach((v,i)=>applyVal(i,v,false));
+    log('Nhận: offset1='+parts[0]+', offset2='+parts[1]+', offset3='+parts[2],'info');
+    // Flash effect
+    [0,1,2].forEach(i=>{
+      const el=document.getElementById('vn'+i);
+      el.classList.remove('fresh');
+      void el.offsetWidth;
+      el.classList.add('fresh');
+      setTimeout(()=>el.classList.remove('fresh'),600);
+    });
+    return;
   }
   if(line==='OK') {
     saved=[...cur];
@@ -515,7 +515,7 @@ async function send(txt) {
   log(txt,'tx');
 }
 async function doGet()    { await send('GET'); }
-async function doUpdate() { await send('1:'+cur[0]+',2:'+cur[1]+',3:'+cur[2]); }
+async function doUpdate() { await send(cur[0]+','+cur[1]+','+cur[2]); }
 
 // ── Slider & step ──
 function onSlide(i) { applyVal(i, +document.getElementById('sl'+i).value); }
